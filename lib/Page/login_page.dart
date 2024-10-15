@@ -146,22 +146,22 @@ class _LoginPageState extends State<LoginPage> {
                     width: double.infinity,
                     child: TextButton(
                         onPressed: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (context) => MainPage()),
-                          );
                           if (emailController.text.trim() ==
-                                  "guipaiter@email.com" &&
+                                  "guipaiter@gmail.com" &&
                               senhaController.text.trim() == "123") {
                             Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => MainPage()));
-                          } else {
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => MainPage()),
+                            );
                             ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                     content:
-                                        Text("Erro ao efetuar um login!")));
+                                        Text("Login efetuado com sucesso!")));
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text("Erro ao efetuar login!")));
                           }
                           debugPrint(emailController.text);
                           debugPrint(senhaController.text);
