@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trilhaapp/repositories/linguagens_repository.dart';
 import 'package:trilhaapp/repositories/nivel_repositories.dart';
 import 'package:trilhaapp/widgets/text_label.dart';
@@ -21,10 +22,22 @@ class _CadastroPageState extends State<CadastroPage> {
   var linguagensRepository = LinguagensRepository();
   var niveis = [];
   var linguagens = [];
-  var linguagensSelecionadas = [];
+  List<String> linguagensSelecionadas = [];
   var nivelSelecionado = "";
   double salarioEscolido = 0;
   int tempoExperiencia = 0;
+  late SharedPreferences storage;
+  final String Chave_Dados_Cadastrais_Nome = "Chave_Dados_Cadastrais_Nome";
+  final String Chave_Dados_Cadastrais_Data_Nascimento =
+      "have_Dados_Cadastrais_Data_Nascimento";
+  final String Chave_Dados_Cadastrais_Nivel_Experiencia =
+      "Chave_Dados_Cadastrais_Nivel_Experiencia";
+  final String Chave_Dados_Cadastrais_Linguagens =
+      "Chave_Dados_Cadastrais_Linguagens";
+  final String Chave_Dados_Cadastrais_Tempo_Experiencia =
+      "Chave_Dados_Cadastrais_Tempo_Experiencia";
+  final String Chave_Dados_Cadastrais_Salario =
+      "Chave_Dados_Cadastrais_Salario";
 
   bool salvando = false;
 
@@ -33,6 +46,23 @@ class _CadastroPageState extends State<CadastroPage> {
     niveis = nivelRepository.retornaNiveis();
     linguagens = linguagensRepository.retornaLinguagens();
     super.initState();
+    carregarDados();
+  }
+
+  carregarDados() async {
+    storage = await SharedPreferences.getInstance();
+    nomeController.text =
+        storage.getString(Chave_Dados_Cadastrais_Nome) ?? "";
+    dataNascimentoController.text =
+        storage.getString(Chave_Dados_Cadastrais_Data_Nascimento) ?? "";
+    dataNascimento = DateTime.parse(Chave_Dados_Cadastrais_Data_Nascimento);
+    nivelSelecionado =
+        storage.getString(Chave_Dados_Cadastrais_Nivel_Experiencia) ?? "";
+    linguagensSelecionadas =
+        storage.getStringList(Chave_Dados_Cadastrais_Linguagens) ?? [];
+    tempoExperiencia =
+        storage.getInt(Chave_Dados_Cadastrais_Tempo_Experiencia) ?? 0;
+    salarioEscolido = storage.getDouble(Chave_Dados_Cadastrais_Salario) ?? 0;
   }
 
   List<DropdownMenuItem<int>> returnItens(int quantidadeMaxima) {
@@ -137,7 +167,7 @@ class _CadastroPageState extends State<CadastroPage> {
                       },
                     ),
                     TextButton(
-                      onPressed: () {
+                      onPressed: () async {
                         if (nomeController.text.trim().length < 3) {
                           ScaffoldMessenger.of(context)
                               .showSnackBar(const SnackBar(
@@ -184,14 +214,31 @@ class _CadastroPageState extends State<CadastroPage> {
                           ));
                           return;
                         }
+
+                        await storage.setString(
+                            Chave_Dados_Cadastrais_Nome, nomeController.text);
+                        await storage.setString(
+                            Chave_Dados_Cadastrais_Data_Nascimento,
+                            dataNascimento.toString());
+                        await storage.setString(
+                            Chave_Dados_Cadastrais_Nivel_Experiencia,
+                            nivelSelecionado);
+                        await storage.setStringList(
+                            Chave_Dados_Cadastrais_Linguagens,
+                            linguagensSelecionadas);
+                        await storage.setInt(
+                            Chave_Dados_Cadastrais_Tempo_Experiencia,
+                            tempoExperiencia);
+                        await storage.setDouble(
+                            Chave_Dados_Cadastrais_Salario, salarioEscolido);
+
                         setState(() {
                           salvando = true;
                         });
                         Future.delayed(Duration(seconds: 3), () {
                           ScaffoldMessenger.of(context)
                               .showSnackBar(const SnackBar(
-                            content: Text(
-                                "Dados salvos com sucesso!"),
+                            content: Text("Dados salvos com sucesso!"),
                           ));
                           setState(() {
                             salvando = false;
