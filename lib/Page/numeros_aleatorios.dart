@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:trilhaapp/services/app_storage_service.dart';
 
 class NumerosAleatoriosPage extends StatefulWidget {
   const NumerosAleatoriosPage({super.key});
@@ -11,11 +11,9 @@ class NumerosAleatoriosPage extends StatefulWidget {
 }
 
 class _NumerosAleatoriosPageState extends State<NumerosAleatoriosPage> {
-  int? numeroGerado = 0;
-  int? numeroCliques = 0;
-  final chave_numero_aleatorio = "número aleatorio";
-  final chave_numero_cliques = "númeroo de cliques";
-  late SharedPreferences storage;
+  int numeroGerado = 0;
+  int numeroCliques = 0;
+  AppStorageService storage = AppStorageService();
 
   @override
   void initState() {
@@ -24,10 +22,10 @@ class _NumerosAleatoriosPageState extends State<NumerosAleatoriosPage> {
   }
 
   void carregarDados() async {
-    storage = await SharedPreferences.getInstance();
+    numeroGerado = await storage.getNumeroAleatorio();
+    numeroCliques = await storage.getNumeroCliques();
     setState(() {
-      numeroGerado = storage.getInt(chave_numero_aleatorio);
-      numeroCliques = storage.getInt(chave_numero_cliques);
+
     });
   }
 
@@ -44,13 +42,13 @@ class _NumerosAleatoriosPageState extends State<NumerosAleatoriosPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                numeroGerado == null
+                numeroGerado.isNaN
                     ? "Nenhum número gerado"
                     : numeroGerado.toString(),
                 style: TextStyle(fontSize: 22),
               ),
               Text(
-                numeroCliques == null
+                numeroCliques.isNaN
                     ? "Nenhum clique efetuado"
                     : numeroCliques.toString(),
                 style: TextStyle(fontSize: 22),
@@ -64,10 +62,10 @@ class _NumerosAleatoriosPageState extends State<NumerosAleatoriosPage> {
               var random = Random();
               setState(() {
                 numeroGerado = random.nextInt(1000);
-                numeroCliques = (numeroCliques ?? 0) + 1;
+                numeroCliques = numeroCliques + 1;
               });
-              storage.setInt(chave_numero_aleatorio, numeroGerado!);
-              storage.setInt(chave_numero_cliques, numeroCliques!);
+              storage.setNumeroAleatorio(numeroGerado);
+              storage.setNumeroCliques(numeroCliques);
             }),
       ),
     );
