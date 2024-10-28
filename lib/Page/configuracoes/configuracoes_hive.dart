@@ -1,37 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:trilhaapp/services/app_storage_service.dart';
+import 'package:trilhaapp/model/configuracoes_model.dart';
+import 'package:trilhaapp/repositories/configuracoes_repository.dart';
 
-class ConfiguracoesPage extends StatefulWidget {
-  const ConfiguracoesPage({super.key});
+class ConfiguracoesHivePage extends StatefulWidget {
+  const ConfiguracoesHivePage({super.key});
 
   @override
-  State<ConfiguracoesPage> createState() => _ConfiguracoesPageState();
+  State<ConfiguracoesHivePage> createState() => _ConfiguracoesHivePageState();
 }
 
-class _ConfiguracoesPageState extends State<ConfiguracoesPage> {
-  AppStorageService storage = AppStorageService();
+class _ConfiguracoesHivePageState extends State<ConfiguracoesHivePage> {
+  late ConfiguracoesRepository configuracoesRepository;
+  var configuracoesModel = ConfiguracoesModel.vazio();
 
   TextEditingController nomeUsuarioController = TextEditingController();
   TextEditingController alturaController = TextEditingController();
 
-  String? nomeUsuario;
-  double? altura;
-  bool receberNofitication = false;
-  bool temaEscuro = false;
-
   @override
   void initState() {
-    // TODO: implement ==
     super.initState();
     carregarDados();
   }
 
   carregarDados() async {
-    nomeUsuarioController.text = await storage.getConfiguracoesNomeUsuario();
-    alturaController.text = (await storage.getConfiguracoesAltura()).toString();
-    receberNofitication = await storage.getConfiguracoesReceberNotificacao();
-    temaEscuro = await storage.getConfiguracoesTema();
+    configuracoesRepository = await configuracoesRepository.load();
+    configuracoesModel = configuracoesRepository.obterDados();
+    nomeUsuarioController.text = configuracoesModel.nomeUsuario;
+    alturaController.text = configuracoesModel.altura.toString();
     setState(() {});
   }
 
@@ -40,75 +35,74 @@ class _ConfiguracoesPageState extends State<ConfiguracoesPage> {
     return SafeArea(
         child: Scaffold(
             appBar: AppBar(
-              title: Text("Configurações"),
+              title: const Text("Configurações"),
             ),
             body: Container(
                 child: ListView(
               children: [
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: TextField(
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: "Nome Usuário",
                     ),
                     controller: nomeUsuarioController,
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: TextField(
                     keyboardType: TextInputType.number,
-                    decoration: InputDecoration(hintText: "Altura"),
+                    decoration: const InputDecoration(hintText: "Altura"),
                     controller: alturaController,
                   ),
                 ),
                 SwitchListTile(
-                    title: Text("Receber Notificações"),
-                    value: receberNofitication,
+                    title: const Text("Receber Notificações"),
+                    value: configuracoesModel.receberNotificacao,
                     onChanged: (bool value) {
                       setState(() {
-                        receberNofitication = !receberNofitication;
+                        configuracoesModel.receberNotificacao =
+                            configuracoesModel.receberNotificacao;
                       });
                     }),
                 SwitchListTile(
-                    title: Text("Tema escuro"),
-                    value: temaEscuro,
+                    title: const Text("Tema escuro"),
+                    value: configuracoesModel.temaEscuro,
                     onChanged: (bool value) {
                       setState(() {
-                        temaEscuro = value;
+                        configuracoesModel.temaEscuro = value;
                       });
                     }),
                 TextButton(
                     onPressed: () async {
                       FocusManager.instance.primaryFocus?.unfocus();
                       try {
-                        await storage.setConfiguracoesAltura(
-                            double.parse(alturaController.text));
+                        configuracoesModel.altura =
+                            double.parse(alturaController.text);
                       } catch (e) {
                         showDialog(
                             context: context,
                             builder: (_) {
                               return AlertDialog(
-                                  title: Text("Meu App"),
-                                  content:
-                                      Text("Favor informar uma altura válida!"),
+                                  title: const Text("Meu App"),
+                                  content: const Text(
+                                      "Favor informar uma altura válida!"),
                                   actions: [
                                     TextButton(
                                         onPressed: () {
                                           Navigator.pop(context);
                                         },
-                                        child: Text("Ok"))
+                                        child: const Text("Ok"))
                                   ]);
                             });
                       }
-                      await storage.setConfiguracoesNomeUsuario(
-                          nomeUsuarioController.text);
-                      await storage.setConfiguracoesReceberNotificacao(
-                          receberNofitication);
-                      await storage.setConfiguracoesTema(temaEscuro);
+                      configuracoesModel.nomeUsuario =
+                          (nomeUsuarioController.text);
+                      configuracoesRepository.salvar(configuracoesModel);
                       Navigator.pop(context);
                     },
-                    child: Text("Salvar"))
+                    child: const Text("Salvar"))
               ],
             ))));
   }
