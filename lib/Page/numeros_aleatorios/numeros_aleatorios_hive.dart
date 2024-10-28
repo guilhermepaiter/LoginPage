@@ -1,19 +1,20 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:trilhaapp/services/app_storage_service.dart';
+import 'package:hive/hive.dart';
 
-class NumerosAleatoriosPage extends StatefulWidget {
-  const NumerosAleatoriosPage({super.key});
+class NumerosAleatoriosPageHive extends StatefulWidget {
+  const NumerosAleatoriosPageHive({super.key});
 
   @override
-  State<NumerosAleatoriosPage> createState() => _NumerosAleatoriosPageState();
+  State<NumerosAleatoriosPageHive> createState() =>
+      _NumerosAleatoriosPageHiveState();
 }
 
-class _NumerosAleatoriosPageState extends State<NumerosAleatoriosPage> {
+class _NumerosAleatoriosPageHiveState extends State<NumerosAleatoriosPageHive> {
   int numeroGerado = 0;
   int numeroCliques = 0;
-  AppStorageService storage = AppStorageService();
+  late Box boxNumerosAleatorios;
 
   @override
   void initState() {
@@ -22,11 +23,14 @@ class _NumerosAleatoriosPageState extends State<NumerosAleatoriosPage> {
   }
 
   void carregarDados() async {
-    numeroGerado = await storage.getNumeroAleatorio();
-    numeroCliques = await storage.getNumeroCliques();
-    setState(() {
-
-    });
+    if(Hive.isBoxOpen('box_numeros_aleatorios')) {
+      boxNumerosAleatorios = Hive.box('box_numeros_aleatorios');
+    } else {
+      boxNumerosAleatorios = await Hive.openBox('box_numeros_aleatorios');
+    }
+    numeroGerado = boxNumerosAleatorios.get('numeroGerado') ?? 0;
+    numeroCliques = boxNumerosAleatorios.get('numeroCliques') ?? 0;
+    setState(() {});
   }
 
   @override
@@ -34,7 +38,7 @@ class _NumerosAleatoriosPageState extends State<NumerosAleatoriosPage> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: Text("Gerador de numeros aleatóorioos"),
+          title: Text("Hive"),
         ),
         body: Container(
           alignment: Alignment.center,
@@ -64,8 +68,8 @@ class _NumerosAleatoriosPageState extends State<NumerosAleatoriosPage> {
                 numeroGerado = random.nextInt(1000);
                 numeroCliques = numeroCliques + 1;
               });
-              storage.setNumeroAleatorio(numeroGerado);
-              storage.setNumeroCliques(numeroCliques);
+              boxNumerosAleatorios.put('numeroGerado', numeroGerado);
+              boxNumerosAleatorios.put('numeroCliques', numeroCliques);
             }),
       ),
     );
