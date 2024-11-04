@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:trilhaapp/Page/configuracoes/configuracoes_hive.dart';
-import 'package:trilhaapp/Page/dados_cadastrais.dart';
+import 'package:trilhaapp/Page/dados_cadastrais/dados_cadastrais_hive.dart';
 import 'package:trilhaapp/Page/login_page.dart';
 import 'package:trilhaapp/Page/numeros_aleatorios/numeros_aleatorios_hive.dart';
 
@@ -131,8 +131,7 @@ class CustomDrawer extends StatelessWidget {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (bc) =>
-                          const ConfiguracoesHivePage()));
+                      builder: (bc) => const ConfiguracoesHivePage()));
             },
           ),
           const Divider(),

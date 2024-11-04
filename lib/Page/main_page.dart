@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:trilhaapp/Page/card_page.dart';
 import 'package:trilhaapp/Page/image_assets.dart';
 
 import 'package:trilhaapp/Page/list_view.dart';
-import 'package:trilhaapp/Page/tarefa_page.dart';
+import 'package:trilhaapp/Page/tarefa_page/tarefa_hive/tarefa_Hive_page.dart';
 import 'package:trilhaapp/widgets/custom_drawer.dart';
 
 class MainPage extends StatefulWidget {
@@ -40,7 +39,7 @@ class _MainPageState extends State<MainPage> {
                     CardPage(),
                     ImageAssetsPage(),
                     ListViewH(),
-                    TarefaPage()
+                    TarefaHivePage()
                   ],
                 ),
               ),
